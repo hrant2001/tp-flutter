@@ -1,6 +1,6 @@
 # sudoku_starter
 
-Sudoku game
+Sudoku game by Hrant ARAKELYAN
 
 ## Getting Started
 
