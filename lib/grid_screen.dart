@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
+import 'internal_grid.dart'; // Import du fichier séparé
 
 class GridScreen extends StatelessWidget {
   const GridScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Récupérer les dimensions de l'écran
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
-    // Définir la taille maximale de la grille (moitié de l'écran)
-    double boxSize = (screenWidth < screenHeight ? screenWidth : screenHeight) / 6;
+    double boxSize = (screenWidth < screenHeight ? screenWidth : screenHeight) * 0.6 / 3;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Grille 3x3 en Flutter")),
+      appBar: AppBar(title: const Text("Grille 3x3 avec sous-grilles")),
       body: Center(
         child: SizedBox(
           height: boxSize * 3,
@@ -22,15 +20,15 @@ class GridScreen extends StatelessWidget {
             crossAxisCount: 3,
             children: List.generate(9, (x) {
               return Container(
-                width: boxSize,
-                height: boxSize,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.blueAccent),
                 ),
+                child: InternalGrid(boxSize: boxSize / 3), // Ajout de la grille interne
               );
             }),
           ),
         ),
       ),
     );
-  }}
+  }
+}

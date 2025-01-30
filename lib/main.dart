@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sudoku_starter/gridscree.dart';
+import 'package:sudoku_starter/grid_screen.dart';
 
 void main() {
   runApp(const MyApp());
