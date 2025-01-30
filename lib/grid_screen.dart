@@ -12,6 +12,8 @@ class GridScreen extends StatefulWidget {
 class _GridScreenState extends State<GridScreen> {
   late Puzzle puzzle;
   List<List<int>> board = List.generate(9, (_) => List.filled(9, 0)); // 9x9 grid initialized with 0s
+  int? selectedRow; // To track the selected row
+  int? selectedCol; // To track the selected column
 
   @override
   void initState() {
@@ -30,6 +32,13 @@ class _GridScreenState extends State<GridScreen> {
           board[i][j] = puzzle.board()?.matrix()?[i][j].getValue() ?? 0;
         }
       }
+    });
+  }
+
+  void _onCellTap(int row, int col) {
+    setState(() {
+      selectedRow = row;
+      selectedCol = col;
     });
   }
 
@@ -55,6 +64,10 @@ class _GridScreenState extends State<GridScreen> {
                 child: InternalGrid(
                   boxSize: boxSize / 3,
                   values: board[x], // Pass the row of values to InternalGrid
+                  onCellTap: (row, col) {
+                    _onCellTap(x, col); // Handle cell tap
+                  },
+                  isSelected: selectedRow == x, // Check if the cell is selected
                 ),
               );
             }),
