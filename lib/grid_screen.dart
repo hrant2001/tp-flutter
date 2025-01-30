@@ -1,8 +1,37 @@
 import 'package:flutter/material.dart';
-import 'internal_grid.dart'; // Import du fichier séparé
+import 'package:sudoku_api/sudoku_api.dart'; // Import the sudoku_api library
+import 'internal_grid.dart';
 
-class GridScreen extends StatelessWidget {
+class GridScreen extends StatefulWidget {
   const GridScreen({super.key});
+
+  @override
+  _GridScreenState createState() => _GridScreenState();
+}
+
+class _GridScreenState extends State<GridScreen> {
+  late Puzzle puzzle;
+  List<List<int>> board = List.generate(9, (_) => List.filled(9, 0)); // 9x9 grid initialized with 0s
+
+  @override
+  void initState() {
+    super.initState();
+    _generatePuzzle();
+  }
+
+  Future<void> _generatePuzzle() async {
+    puzzle = Puzzle(PuzzleOptions(patternName: "winter"));
+    await puzzle.generate(); // Generate the puzzle asynchronously
+
+    setState(() {
+      // Fill the board with values
+      for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+          board[i][j] = puzzle.board()?.matrix()?[i][j].getValue() ?? 0;
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +52,10 @@ class GridScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.blueAccent),
                 ),
-                child: InternalGrid(boxSize: boxSize / 3), // Ajout de la grille interne
+                child: InternalGrid(
+                  boxSize: boxSize / 3,
+                  values: board[x], // Pass the row of values to InternalGrid
+                ),
               );
             }),
           ),
