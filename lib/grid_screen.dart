@@ -43,6 +43,16 @@ class _GridScreenState extends State<GridScreen> {
     });
   }
 
+  void _onNumberTap(int value) {
+    if (selectedRow != null && selectedCol != null) {
+      setState(() {
+        // Mise à jour de la cellule sélectionnée
+        puzzle.board()!.cellAt(Position(row: selectedRow!, column: selectedCol!)).setValue(value);
+        board[selectedRow!][selectedCol!] = value;
+      });
+    }
+  }
+
   List<int> _getBlockValues(int blockIndex) {
     List<int> values = [];
     int startRow = (blockIndex ~/ 3) * 3;
@@ -72,10 +82,12 @@ class _GridScreenState extends State<GridScreen> {
           ),
         ],
       ),
-      body: Center(
+      body: Center( // Centrer l'ensemble du contenu
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // La grille de Sudoku
             SizedBox(
               height: boxSize * 3,
               width: boxSize * 3,
@@ -101,6 +113,19 @@ class _GridScreenState extends State<GridScreen> {
                   );
                 },
               ),
+            ),
+            const SizedBox(height: 20),
+            // Clavier numérique pour entrer les chiffres
+            Wrap(
+              spacing: 5,
+              runSpacing: 5,
+              alignment: WrapAlignment.center, // Centrer les boutons
+              children: List.generate(9, (index) {
+                return ElevatedButton(
+                  onPressed: () => _onNumberTap(index + 1),
+                  child: Text('${index + 1}', style: const TextStyle(fontSize: 20)),
+                );
+              }),
             ),
           ],
         ),
