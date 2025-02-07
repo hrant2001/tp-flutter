@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sudoku_api/sudoku_api.dart'; // Import the sudoku_api library
+import 'package:sudoku_api/sudoku_api.dart'; 
 import 'internal_grid.dart';
 
 class GridScreen extends StatefulWidget {
@@ -11,9 +11,9 @@ class GridScreen extends StatefulWidget {
 
 class _GridScreenState extends State<GridScreen> {
   late Puzzle puzzle;
-  List<List<int>> board = List.generate(9, (_) => List.filled(9, 0)); // 9x9 grid initialized with 0s
-  int? selectedRow; // To track the selected row
-  int? selectedCol; // To track the selected column
+  List<List<int>> board = List.generate(9, (_) => List.filled(9, 0));
+  int? selectedRow;
+  int? selectedCol;
 
   @override
   void initState() {
@@ -23,15 +23,16 @@ class _GridScreenState extends State<GridScreen> {
 
   Future<void> _generatePuzzle() async {
     puzzle = Puzzle(PuzzleOptions(patternName: "winter"));
-    await puzzle.generate(); // Generate the puzzle asynchronously
+    await puzzle.generate(); 
 
     setState(() {
-      // Fill the board with values
       for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
           board[i][j] = puzzle.board()?.matrix()?[i][j].getValue() ?? 0;
         }
       }
+      selectedRow = null;
+      selectedCol = null;
     });
   }
 
@@ -42,6 +43,19 @@ class _GridScreenState extends State<GridScreen> {
     });
   }
 
+  List<int> _getBlockValues(int blockIndex) {
+    List<int> values = [];
+    int startRow = (blockIndex ~/ 3) * 3;
+    int startCol = (blockIndex % 3) * 3;
+
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        values.add(board[startRow + i][startCol + j]);
+      }
+    }
+    return values;
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -49,29 +63,46 @@ class _GridScreenState extends State<GridScreen> {
     double boxSize = (screenWidth < screenHeight ? screenWidth : screenHeight) * 0.6 / 3;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Grille 3x3 avec sous-grilles")),
-      body: Center(
-        child: SizedBox(
-          height: boxSize * 3,
-          width: boxSize * 3,
-          child: GridView.count(
-            crossAxisCount: 3,
-            children: List.generate(9, (x) {
-              return Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blueAccent),
-                ),
-                child: InternalGrid(
-                  boxSize: boxSize / 3,
-                  values: board[x], // Pass the row of values to InternalGrid
-                  onCellTap: (row, col) {
-                    _onCellTap(x, col); // Handle cell tap
-                  },
-                  isSelected: selectedRow == x, // Check if the cell is selected
-                ),
-              );
-            }),
+      appBar: AppBar(
+        title: const Text("Sudoku"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _generatePuzzle,
           ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: boxSize * 3,
+              width: boxSize * 3,
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+                itemCount: 9,
+                itemBuilder: (context, x) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent),
+                    ),
+                    child: InternalGrid(
+                      boxSize: boxSize / 3,
+                      values: _getBlockValues(x),
+                      onCellTap: _onCellTap,
+                      selectedRow: selectedRow,
+                      selectedCol: selectedCol,
+                      blockIndex: x,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
