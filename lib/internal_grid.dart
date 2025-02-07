@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sudoku_api/sudoku_api.dart';
 
 class InternalGrid extends StatelessWidget {
   final double boxSize;
@@ -6,7 +7,8 @@ class InternalGrid extends StatelessWidget {
   final void Function(int, int) onCellTap;
   final int? selectedRow;
   final int? selectedCol;
-  final int blockIndex; // Indice du bloc 3x3
+  final int blockIndex;
+  final Puzzle puzzle;
 
   const InternalGrid({
     super.key,
@@ -16,6 +18,7 @@ class InternalGrid extends StatelessWidget {
     required this.selectedRow,
     required this.selectedCol,
     required this.blockIndex,
+    required this.puzzle,
   });
 
   @override
@@ -33,6 +36,10 @@ class InternalGrid extends StatelessWidget {
           int row = (blockIndex ~/ 3) * 3 + (x ~/ 3);
           int col = (blockIndex % 3) * 3 + (x % 3);
           bool isSelected = selectedRow == row && selectedCol == col;
+          int currentValue = values[x];
+          
+          // Récupérer la valeur attendue pour la cellule
+          int expectedValue = puzzle.solvedBoard()?.matrix()?[row][col].getValue() ?? 0;
 
           return InkWell(
             onTap: () => onCellTap(row, col),
@@ -45,8 +52,14 @@ class InternalGrid extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  values[x] == 0 ? "" : values[x].toString(),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  currentValue == 0 
+                      ? '$expectedValue' // Affiche la valeur attendue si vide
+                      : currentValue.toString(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: currentValue == 0 ? Colors.black12 : Colors.black, // Texte attendu en gris
+                  ),
                 ),
               ),
             ),

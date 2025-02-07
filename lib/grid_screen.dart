@@ -82,12 +82,11 @@ class _GridScreenState extends State<GridScreen> {
           ),
         ],
       ),
-      body: Center( // Centrer l'ensemble du contenu
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // La grille de Sudoku
             SizedBox(
               height: boxSize * 3,
               width: boxSize * 3,
@@ -109,17 +108,17 @@ class _GridScreenState extends State<GridScreen> {
                       selectedRow: selectedRow,
                       selectedCol: selectedCol,
                       blockIndex: x,
+                      puzzle: puzzle,
                     ),
                   );
                 },
               ),
             ),
             const SizedBox(height: 20),
-            // Clavier numérique pour entrer les chiffres
             Wrap(
               spacing: 5,
               runSpacing: 5,
-              alignment: WrapAlignment.center, // Centrer les boutons
+              alignment: WrapAlignment.center,
               children: List.generate(9, (index) {
                 return ElevatedButton(
                   onPressed: () => _onNumberTap(index + 1),
