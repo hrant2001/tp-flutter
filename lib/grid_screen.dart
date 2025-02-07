@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:sudoku_api/sudoku_api.dart'; 
 import 'internal_grid.dart';
@@ -44,14 +45,30 @@ class _GridScreenState extends State<GridScreen> {
   }
 
   void _onNumberTap(int value) {
-    if (selectedRow != null && selectedCol != null) {
+  if (selectedRow != null && selectedCol != null) {
+    int expectedValue = puzzle.solvedBoard()?.matrix()?[selectedRow!][selectedCol!].getValue() ?? 0;
+
+    if (value == expectedValue) {
       setState(() {
-        // Mise à jour de la cellule sélectionnée
+        // Update the selected cell with the correct value
         puzzle.board()!.cellAt(Position(row: selectedRow!, column: selectedCol!)).setValue(value);
         board[selectedRow!][selectedCol!] = value;
       });
+    } else {
+      // Show error message in case of an incorrect value
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: AwesomeSnackbarContent(
+            title: 'Incorrect Value!',
+            message: 'Try again.',
+            contentType: ContentType.failure,
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
+}
 
   List<int> _getBlockValues(int blockIndex) {
     List<int> values = [];
