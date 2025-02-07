@@ -1,6 +1,6 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
-import 'package:sudoku_api/sudoku_api.dart'; 
+import 'package:sudoku_api/sudoku_api.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart'; 
 import 'internal_grid.dart';
 
 class GridScreen extends StatefulWidget {
@@ -45,30 +45,45 @@ class _GridScreenState extends State<GridScreen> {
   }
 
   void _onNumberTap(int value) {
-  if (selectedRow != null && selectedCol != null) {
-    int expectedValue = puzzle.solvedBoard()?.matrix()?[selectedRow!][selectedCol!].getValue() ?? 0;
+    if (selectedRow != null && selectedCol != null) {
+      int expectedValue = puzzle.solvedBoard()?.matrix()?[selectedRow!][selectedCol!].getValue() ?? 0;
 
-    if (value == expectedValue) {
-      setState(() {
-        // Update the selected cell with the correct value
-        puzzle.board()!.cellAt(Position(row: selectedRow!, column: selectedCol!)).setValue(value);
-        board[selectedRow!][selectedCol!] = value;
-      });
-    } else {
-      // Show error message in case of an incorrect value
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: AwesomeSnackbarContent(
-            title: 'Incorrect Value!',
-            message: 'Try again.',
-            contentType: ContentType.failure,
+      if (value == expectedValue) {
+        setState(() {
+          puzzle.board()!.cellAt(Position(row: selectedRow!, column: selectedCol!)).setValue(value);
+          board[selectedRow!][selectedCol!] = value;
+        });
+
+        // Vérifier si la grille est complète
+        if (_checkVictory()) {
+          Navigator.pushNamed(context, '/end');
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: AwesomeSnackbarContent(
+              title: 'Incorrect Value!',
+              message: 'Try again.',
+              contentType: ContentType.failure,
+            ),
+            duration: const Duration(seconds: 2),
           ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+        );
+      }
     }
   }
-}
+
+  bool _checkVictory() {
+    // Vérifie si toutes les cellules sont correctement remplies
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < 9; j++) {
+        if (board[i][j] != puzzle.solvedBoard()?.matrix()?[i][j].getValue()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 
   List<int> _getBlockValues(int blockIndex) {
     List<int> values = [];
@@ -81,6 +96,17 @@ class _GridScreenState extends State<GridScreen> {
       }
     }
     return values;
+  }
+
+  // Function to resolve the puzzle
+  void _resolvePuzzle() {
+    setState(() {
+      for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+          board[i][j] = puzzle.solvedBoard()?.matrix()?[i][j].getValue() ?? 0;
+        }
+      }
+    });
   }
 
   @override
@@ -142,6 +168,11 @@ class _GridScreenState extends State<GridScreen> {
                   child: Text('${index + 1}', style: const TextStyle(fontSize: 20)),
                 );
               }),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _resolvePuzzle,
+              child: const Text("Resolve", style: TextStyle(fontSize: 20)),
             ),
           ],
         ),
